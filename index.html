@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exploradores de la Biodiversidad de Puebla</title>
+<style>
+:root{--navy:#172748;--green:#23765a;--yellow:#f4c454;--bg:#f5f7f1}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--navy);font-family:system-ui,sans-serif}
+header{background:var(--navy);color:white;padding:36px 20px}
+.wrap{max-width:1000px;margin:auto}
+header p{max-width:650px;line-height:1.6}
+.tag{color:var(--yellow);font-weight:700;font-size:13px}
+h1{font-size:clamp(28px,5vw,48px);line-height:1.1}
+main{padding:24px 18px}
+.card{background:white;padding:24px;border-radius:20px;margin-bottom:20px;
+border:1px solid #dce4dc}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+button,.button{background:var(--green);color:white;border:0;border-radius:12px;
+padding:13px 18px;font:inherit;font-weight:650;cursor:pointer;
+display:inline-block;text-decoration:none}
+button:disabled{opacity:.5;cursor:default}
+.secondary{background:#e9eee8;color:var(--navy)}
+.mission{background:#eef3ec;color:var(--navy);text-align:left;padding:20px}
+.mission.done{background:#dcefe2}
+label{display:block;margin:12px 0}
+input,select,textarea{font:inherit}
+input[type=text],select,textarea{width:100%;padding:12px;border:1px solid #aab9b1;
+border-radius:10px;background:white;color:var(--navy)}
+textarea{min-height:110px}
+input[type=radio]{margin-right:10px}
+.option{padding:12px;background:#f1f4ef;border-radius:10px}
+progress{width:100%;height:18px;accent-color:var(--green)}
+.small{font-size:14px;line-height:1.6}
+.notice{background:#fff5d8;padding:15px;border-radius:12px}
+.feedback{padding:12px;border-radius:10px;margin:12px 0}
+.success{background:#dcefe2}
+.error{background:#fff0df}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.hidden{display:none}
+.badge{font-size:32px}
+footer{padding:20px;font-size:13px}
+@media print{
+header,.no-print,footer{display:none!important}
+body{background:white}
+.card{border:1px solid #aaa;break-inside:avoid}
+#passport{display:block!important}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<div class="tag">PILOTO · GRUPO SCOUT 2 DE CUAUTLANCINGO</div>
+<h1>Exploradores de la<br>Biodiversidad de Puebla</h1>
+<p>Cinco personajes, cinco misiones y una oportunidad para descubrir,
+comprender y cuidar la vida que nos rodea.</p>
+<p class="small">Propuesta educativa vinculada al Día de Exploración
+del ICCB Puebla 2027. No representa un aval institucional.</p>
+</div>
+</header>
+
+<main class="wrap">
+<section class="card no-print" id="setup">
+<h2>Comienza tu exploración</h2>
+<label for="alias">Tu apodo</label>
+<input id="alias" type="text" maxlength="30" placeholder="Elige un apodo">
+<label for="section">Tu sección</label>
+<select id="section">
+<option value="tropa">Tropa</option>
+<option value="comunidad">Comunidad</option>
+</select>
+<div class="actions"><button id="start">Comenzar el rally</button></div>
+<p class="small">Tus respuestas se guardan solamente en este navegador.
+Usa el mismo dispositivo para continuar. Si borras los datos del navegador,
+se perderán. No escribas datos personales.</p>
+</section>
+
+<section class="card no-print">
+<h2>Cómo participar</h2>
+<p>Completa los retos digitales durante dos semanas y realiza las actividades
+prácticas con acompañamiento de tu scouter. Puedes colaborar con tu patrulla
+o equipo, pero registra tu propia reflexión.</p>
+<p>No necesitas Instagram ni asistir a actividades presenciales.
+Los sellos de esta página reconocen únicamente los retos digitales.</p>
+</section>
+
+<section id="dashboard" class="hidden no-print">
+<div class="card">
+<h2 id="welcome"></h2>
+<p id="count"></p>
+<progress id="progress" max="5" value="0"></progress>
+<div class="actions">
+<button class="secondary" id="passportButton">Ver pasaporte</button>
+<button class="secondary" id="reset">Reiniciar mi avance</button>
+</div>
+<p id="storageNotice" class="notice hidden" role="status">
+El navegador no permite guardar datos. Puedes jugar, pero tu avance
+no se conservará al cerrar la página.
+</p>
+</div>
+<div class="grid" id="map"></div>
+<section class="card hidden" id="missionPanel"></section>
+</section>
+
+<section class="card hidden" id="passport">
+<h2>Mi pasaporte de exploración</h2>
+<p id="passportName"></p>
+<div id="stamps" class="grid"></div>
+<p class="notice small">Los sellos indican retos digitales completados.
+Las actividades prácticas y su posible aportación a especialidades o
+competencias ambientales requieren revisión de tu scouter.
+Este pasaporte no equivale a una insignia oficial de ASMAC.</p>
+<div class="actions no-print">
+<button id="print">Imprimir / guardar como PDF</button>
+</div>
+</section>
+
+<section class="card no-print">
+<h2>Agenda e Instagram</h2>
+<p>Las actividades presenciales, sedes, fechas de participación y cuenta de
+Instagram están por confirmar. La asistencia presencial será opcional.</p>
+</section>
+</main>
+<footer class="wrap">Versión piloto · Evidencias prácticas entregadas fuera de la web.</footer>
+
+<script>
+const missions=[
+{
+name:"Cacomixtle",icon:"🔎",title:"Descubre",
+learn:"La biodiversidad incluye la variedad de seres vivos, sus diferencias y los ecosistemas de los que forman parte. Puedes comenzar observando un jardín o patio sin capturar ni recolectar organismos.",
+question:"¿Cuál es la mejor forma de observar biodiversidad sin alterar el lugar?",
+options:["Capturar insectos para contarlos después","Observar, dibujar o fotografiar sin intervenir","Arrancar plantas para identificarlas"],
+answer:1,
+explain:"Observar y registrar permite aprender sin retirar organismos de su hábitat.",
+tropa:"Registra cinco seres vivos de tu entorno con dibujos o fotografías. Anota dónde los observaste, sin incluir direcciones exactas.",
+comunidad:"Registra cinco seres vivos y explica cómo la sombra, el agua, la vegetación u otras condiciones pueden influir en su presencia."
+},
+{
+name:"Armadillo",icon:"📚",title:"Comprende",
+learn:"Los organismos se relacionan entre sí. Algunos polinizan flores, otros descomponen materia orgánica y otros se alimentan de organismos. Una especie puede desempeñar varias funciones.",
+question:"¿Qué puede ocurrir cuando un insecto transporta polen entre flores compatibles de la misma especie?",
+options:["Puede contribuir a la reproducción de la planta","Convierte todas las flores en la misma especie","Elimina la necesidad de agua de la planta"],
+answer:0,
+explain:"El transporte de polen puede favorecer la reproducción de plantas con flores.",
+tropa:"Investiga un organismo observado: qué necesita para vivir y qué función desempeña. Registra la fuente consultada.",
+comunidad:"Investiga un organismo, sus relaciones con otros y una presión ambiental que pueda afectarlo. Registra tus fuentes."
+},
+{
+name:"Teporingo",icon:"🤝",title:"Escucha",
+learn:"Testimonio ficticio para este piloto: «Cuidamos el jardín del barrio. Algunas personas quieren retirar todas las hojas caídas; otras prefieren conservar una parte porque han observado pequeños organismos entre ellas».",
+question:"¿Cuál sería un primer paso útil antes de decidir qué hacer?",
+options:["Retirar todo sin consultar","Escuchar a los responsables y buscar asesoría sobre el manejo del jardín","Introducir animales para reemplazar los que haya"],
+answer:1,
+explain:"Escuchar y reunir información permite valorar las necesidades del espacio antes de intervenir.",
+tropa:"Haz tres preguntas a un familiar o responsable de un espacio sobre un problema ambiental. Resume sus respuestas sin nombres ni datos personales.",
+comunidad:"Realiza una entrevista breve sobre un problema ambiental. Identifica posibles causas, actores involucrados y soluciones; distingue opiniones de hechos comprobados."
+},
+{
+name:"Jaguar",icon:"🛡️",title:"Actúa",
+learn:"Una acción ambiental comienza por comprender el problema, acordar una intervención apropiada y observar sus resultados. Realízala con tu scouter y con autorización del responsable del espacio.",
+question:"Encuentras residuos en un jardín. ¿Qué acción es más adecuada?",
+options:["Quemarlos en el lugar","Recoger también objetos cortantes sin ayuda","Acordar una recogida de materiales seguros y su destino con un adulto responsable"],
+answer:2,
+explain:"La acción debe tener acompañamiento y un destino previsto para los residuos. No manipules objetos cortantes, sustancias desconocidas o residuos sanitarios.",
+tropa:"Acuerda una acción pequeña con tu scouter. Documenta qué hiciste y cuál fue el resultado.",
+comunidad:"Define una acción con objetivo, indicador y seguimiento. Compara lo previsto con lo ocurrido. No captures fauna ni retires o plantes especies sin asesoría y autorización."
+},
+{
+name:"Colibrí",icon:"💬",title:"Comparte",
+learn:"Compartir también implica explicar cómo obtuviste tus datos, qué no sabes todavía y qué podrían hacer otras personas. Una experiencia breve no demuestra por sí sola un cambio permanente.",
+question:"¿Cuál es la forma más responsable de comunicar un resultado?",
+options:["Explicar lo observado, el método y sus límites","Inventar cifras para que resulte más atractivo","Afirmar que una acción resolvió todos los problemas del lugar"],
+answer:0,
+explain:"Comunicar resultados con sus límites ayuda a que otras personas comprendan y utilicen lo aprendido.",
+tropa:"Comparte tus descubrimientos con tu patrulla o familia. Escribe qué aprendiste y qué dificultad encontraste.",
+comunidad:"Elabora una pieza de divulgación, recoge comentarios y explica qué mejorarías. Añade una reflexión sobre cómo continuar."
+}
+];
+
+const key="biodiversidad-puebla-v1";
+let state={alias:"",section:"tropa",done:[],notes:{}};
+let storageOK=true;
+try{
+const saved=JSON.parse(localStorage.getItem(key)||"null");
+if(saved && typeof saved.alias==="string" &&
+["tropa","comunidad"].includes(saved.section)){
+state={
+alias:saved.alias.slice(0,30),
+section:saved.section,
+done:Array.isArray(saved.done)?saved.done.filter(n=>Number.isInteger(n)&&n>=0&&n<5):[],
+notes:saved.notes&&typeof saved.notes==="object"?saved.notes:{}
+};
+}
+}catch(e){storageOK=false}
+
+const $=id=>document.getElementById(id);
+function save(){
+try{localStorage.setItem(key,JSON.stringify(state))}
+catch(e){storageOK=false}
+$("storageNotice").classList.toggle("hidden",storageOK);
+}
+function render(){
+const active=!!state.alias;
+$("setup").classList.toggle("hidden",active);
+$("dashboard").classList.toggle("hidden",!active);
+if(!active)return;
+$("welcome").textContent="Hola, "+state.alias+" · "+(state.section==="tropa"?"Tropa":"Comunidad");
+$("count").textContent=state.done.length+" de 5 retos digitales completados";
+$("progress").value=state.done.length;
+$("storageNotice").classList.toggle("hidden",storageOK);
+$("map").replaceChildren();
+missions.forEach((m,i)=>{
+const done=state.done.includes(i);
+const available=i===0||state.done.includes(i-1);
+const b=document.createElement("button");
+b.className="mission"+(done?" done":"");
+b.textContent=m.icon+" "+m.name+" · "+m.title+
+(done?" — Sello obtenido":available?" — Explorar":" — Pendiente");
+b.disabled=!available;
+b.onclick=()=>openMission(i);
+$("map").appendChild(b);
+});
+renderPassport();
+}
+function openMission(i){
+const m=missions[i],panel=$("missionPanel");
+panel.classList.remove("hidden");
+panel.innerHTML=`
+<h2>${m.icon} ${m.name}: ${m.title}</h2>
+<p>${m.learn}</p>
+<form id="quiz">
+<fieldset><legend>${m.question}</legend>
+${m.options.map((o,j)=>`<label class="option"><input type="radio"
+name="answer" value="${j}" required>${o}</label>`).join("")}
+</fieldset>
+<div class="actions"><button type="submit">Comprobar respuesta</button></div>
+</form>
+<div id="feedback" role="status"></div>
+<h3>Tu actividad práctica</h3>
+<p>${m[state.section]}</p>
+<label for="note">Mi registro: ¿qué hice, qué aprendí y qué falta revisar?</label>
+<textarea id="note" maxlength="3000"
+placeholder="Escribe sin nombres completos ni información personal."></textarea>
+<div class="actions"><button id="saveNote" class="secondary">Guardar reflexión</button></div>
+<p id="noteStatus" class="small" role="status"></p>
+<p class="notice small">Entrega las evidencias a tu scouter. Esta página no valida
+la actividad práctica ni concede insignias oficiales.</p>`;
+$("note").value=typeof state.notes[i]==="string"?state.notes[i]:"";
+$("quiz").onsubmit=e=>{
+e.preventDefault();
+const value=Number(new FormData(e.target).get("answer"));
+const correct=value===m.answer;
+$("feedback").className="feedback "+(correct?"success":"error");
+$("feedback").textContent=correct?"¡Correcto! "+m.explain:"Vuelve a intentarlo. "+m.explain;
+if(correct){
+if(!state.done.includes(i))state.done.push(i);
+state.notes[i]=$("note").value;
+save();render();
+}
+};
+$("saveNote").onclick=()=>{
+state.notes[i]=$("note").value;
+save();
+$("noteStatus").textContent=storageOK?"Reflexión guardada en este navegador.":"No se pudo guardar. Copia tu reflexión antes de cerrar.";
+renderPassport();
+};
+panel.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderPassport(){
+$("passportName").textContent=state.alias+" · "+(state.section==="tropa"?"Tropa":"Comunidad");
+$("stamps").replaceChildren();
+missions.forEach((m,i)=>{
+const box=document.createElement("div");
+box.className="card";
+const heading=document.createElement("h3");
+heading.textContent=m.icon+" "+m.name;
+const status=document.createElement("p");
+status.textContent=state.done.includes(i)?"Sello digital obtenido":"Reto digital pendiente";
+const note=document.createElement("p");
+note.className="small";
+note.textContent=state.notes[i]||"Sin reflexión registrada.";
+box.append(heading,status,note);
+$("stamps").appendChild(box);
+});
+}
+$("start").onclick=()=>{
+const alias=$("alias").value.trim();
+if(!alias){$("alias").focus();return}
+state.alias=alias;state.section=$("section").value;
+save();render();
+};
+$("passportButton").onclick=()=>{
+$("passport").classList.remove("hidden");
+renderPassport();
+$("passport").scrollIntoView({behavior:"smooth"});
+};
+$("print").onclick=()=>window.print();
+$("reset").onclick=()=>{
+if(confirm("¿Quieres borrar todo tu avance y tus reflexiones en este navegador?")){
+state={alias:"",section:"tropa",done:[],notes:{}};
+save();
+$("missionPanel").classList.add("hidden");
+$("passport").classList.add("hidden");
+$("alias").value="";
+render();
+}
+};
+render();
+</script>
+</body>
+</html>s
